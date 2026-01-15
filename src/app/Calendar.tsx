@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { ChartBarIcon } from '@heroicons/react/20/solid';
 import type { CheckInsData } from './page';
 import { DayData, formatDuration } from './lib/sessions';
 import { MONTHS, WEEKDAYS, getPersonColor } from './lib/constants';
 import { MonthYearSelector } from './components/MonthYearSelector';
 import { SessionModal, ModalData } from './components/SessionModal';
+import { ReportsModal } from './components/ReportsModal';
 
 const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
 const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
@@ -19,6 +21,7 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [modalData, setModalData] = useState<ModalData>(null);
+  const [showReports, setShowReports] = useState(false);
 
   const people = Object.keys(checkIns).sort();
   const daysInMonth = getDaysInMonth(year, month);
@@ -58,13 +61,22 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold text-white mb-8">WiFi Check-ins</h1>
 
-        <MonthYearSelector
-          month={month}
-          year={year}
-          onMonthChange={setMonth}
-          onYearChange={setYear}
-          years={years}
-        />
+        <div className="flex items-center justify-between mb-6">
+          <MonthYearSelector
+            month={month}
+            year={year}
+            onMonthChange={setMonth}
+            onYearChange={setYear}
+            years={years}
+          />
+          <button
+            onClick={() => setShowReports(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-zinc-900 text-white border border-zinc-800 hover:bg-zinc-800 transition-colors"
+          >
+            <ChartBarIcon className="h-5 w-5" />
+            <span>Reports</span>
+          </button>
+        </div>
 
         {people.length > 0 && (
           <div className="flex gap-4 mb-6 flex-wrap">
@@ -133,6 +145,7 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
       </div>
 
       <SessionModal data={modalData} onClose={() => setModalData(null)} formatDate={formatDateDisplay} />
+      <ReportsModal isOpen={showReports} onClose={() => setShowReports(false)} checkIns={checkIns} />
     </div>
   );
 };
