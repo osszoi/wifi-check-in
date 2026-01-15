@@ -29,7 +29,10 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
     `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
   const getCheckInsForDay = (day: number) =>
-    people.filter(person => checkIns[person]?.[formatDateStr(day)]);
+    people.filter(person => {
+      const dayData = checkIns[person]?.[formatDateStr(day)];
+      return dayData && dayData.totalMinutes > 0;
+    });
 
   const getDayData = (person: string, day: number): DayData | null =>
     checkIns[person]?.[formatDateStr(day)] || null;
