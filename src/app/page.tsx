@@ -1,10 +1,11 @@
-import { readdirSync, existsSync } from 'fs';
+import { readdirSync, existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { Calendar } from './Calendar';
+import { parsePingLog, calculateSessions, DayData } from './lib/sessions';
 
 export const dynamic = 'force-dynamic';
 
-type CheckInsData = Record<string, string[]>;
+export type CheckInsData = Record<string, Record<string, DayData>>;
 
 const getCheckInsData = (): CheckInsData => {
   const checkInsPath = join(process.cwd(), 'check-ins');
@@ -22,7 +23,15 @@ const getCheckInsData = (): CheckInsData => {
   for (const person of people) {
     const personPath = join(checkInsPath, person);
     const dates = readdirSync(personPath).filter(f => !f.startsWith('.'));
-    data[person] = dates;
+
+    data[person] = {};
+
+    for (const date of dates) {
+      const filePath = join(personPath, date);
+      const content = readFileSync(filePath, 'utf-8');
+      const entries = parsePingLog(content);
+      data[person][date] = calculateSessions(entries);
+    }
   }
 
   return data;

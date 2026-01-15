@@ -1,8 +1,8 @@
 import { exec } from 'child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, appendFileSync } from 'fs';
 import { readFile } from 'fs/promises';
 
-const CHECK_INTERVAL_MS = 60 * 1000;
+const CHECK_INTERVAL_MS = 3 * 60 * 1000;
 const CHECK_INS_DIR = './check-ins';
 
 const loadConfig = async () => {
@@ -26,20 +26,24 @@ const getToday = () => {
   return `${year}-${month}-${day}`;
 };
 
-const checkIn = (person) => {
-  const personDir = `${CHECK_INS_DIR}/${person}`;
-  const checkInFile = `${personDir}/${getToday()}`;
+const getTime = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  return `${hours}:${minutes}:${seconds}`;
+};
 
-  if (existsSync(checkInFile)) {
-    return false;
-  }
+const logPing = (person, isOnline) => {
+  const personDir = `${CHECK_INS_DIR}/${person}`;
+  const logFile = `${personDir}/${getToday()}`;
 
   if (!existsSync(personDir)) {
     mkdirSync(personDir, { recursive: true });
   }
 
-  writeFileSync(checkInFile, '');
-  return true;
+  const entry = `${getTime()},${isOnline ? 1 : 0}\n`;
+  appendFileSync(logFile, entry);
 };
 
 const runCheck = async () => {
@@ -53,13 +57,9 @@ const runCheck = async () => {
     })
   );
 
-  for (const { person, ip, isOnline } of results) {
-    if (isOnline) {
-      const isNew = checkIn(person);
-      if (isNew) {
-        console.log(`[${getToday()}] ${person} checked in`);
-      }
-    }
+  for (const { person, isOnline } of results) {
+    logPing(person, isOnline);
+    console.log(`[${getToday()} ${getTime()}] ${person}: ${isOnline ? 'online' : 'offline'}`);
   }
 };
 
