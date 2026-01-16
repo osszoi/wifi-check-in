@@ -15,6 +15,6 @@ services:
       dockerfile: Dockerfile.scanner
     volumes:
       - ./check-ins:/app/check-ins
-      - ./config.json:/app/config.json
+      - ./scan.config.json:/app/scan.config.json
     network_mode: host
     restart: unless-stopped

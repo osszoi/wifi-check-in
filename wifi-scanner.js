@@ -6,7 +6,7 @@ const CHECK_INTERVAL_MS = 3 * 60 * 1000;
 const CHECK_INS_DIR = './check-ins';
 
 const loadConfig = async () => {
-  const data = await readFile('./config.json', 'utf-8');
+  const data = await readFile('./scan.config.json', 'utf-8');
   return JSON.parse(data);
 };
 

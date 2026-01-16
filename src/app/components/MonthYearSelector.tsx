@@ -15,7 +15,7 @@ type Props = {
 export const MonthYearSelector = ({ month, year, onMonthChange, onYearChange, years }: Props) => {
   return (
     <div className="flex gap-4">
-      <Listbox value={month} onChange={onMonthChange} __demoMode>
+      <Listbox value={month} onChange={onMonthChange}>
         <div className="relative">
           <ListboxButton className="relative w-40 cursor-pointer rounded-lg bg-zinc-900 py-2.5 pl-4 pr-10 text-left text-white shadow-md border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-white/20">
             <span className="block truncate">{MONTHS[month]}</span>

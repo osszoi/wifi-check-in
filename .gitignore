@@ -1,3 +1,4 @@
 check-ins/
 node_modules/
 .next/
+scan.config.json
