@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import type { CheckInsData } from '../page';
 import { MONTHS } from '../lib/constants';
 import { calculateMonthlyReport, formatHours, PersonMonthlyReport } from '../lib/reports';
+import { utcTimeToLocal } from '../lib/utils';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -134,8 +135,8 @@ const PersonReport = ({ report, year, month }: { report: PersonMonthlyReport; ye
         <StatCard label="Avg Time/Day" value={formatHours(report.avgMinutesPerDay)} />
         <StatCard label="Avg Days/Week" value={String(report.avgDaysPerWeek)} />
         <StatCard label="Avg Time/Week" value={formatHours(report.avgMinutesPerWeek)} />
-        <StatCard label="Avg Check-In" value={report.avgFirstCheckIn || '-'} />
-        <StatCard label="Avg Check-Out" value={report.avgLastCheckOut || '-'} />
+        <StatCard label="Avg Check-In" value={report.avgFirstCheckIn ? utcTimeToLocal(report.avgFirstCheckIn, '2000-01-01') : '-'} />
+        <StatCard label="Avg Check-Out" value={report.avgLastCheckOut ? utcTimeToLocal(report.avgLastCheckOut, '2000-01-01') : '-'} />
         <StatCard
           label="Active Rate"
           value={`${Math.round((report.totalDays / new Date(year, month + 1, 0).getDate()) * 100)}%`}

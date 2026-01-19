@@ -4,6 +4,7 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
 import { DayData, formatDuration } from '../lib/sessions';
+import { utcTimeToLocal } from '../lib/utils';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -29,10 +30,10 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
   const timelineData = sessions.map((session, i) => ({
     x: `Session ${i + 1}`,
     y: [
-      new Date(`${date}T${session.start}`).getTime(),
+      new Date(`${date}T${session.start}Z`).getTime(),
       session.end
-        ? new Date(`${date}T${session.end}`).getTime()
-        : new Date(`${date}T${session.start}`).getTime() + session.durationMinutes * 60 * 1000,
+        ? new Date(`${date}T${session.end}Z`).getTime()
+        : new Date(`${date}T${session.start}Z`).getTime() + session.durationMinutes * 60 * 1000,
     ],
   }));
 
@@ -52,8 +53,8 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
     colors: [color],
     xaxis: {
       type: 'datetime',
-      min: new Date(`${date}T00:00:00`).getTime(),
-      max: new Date(`${date}T23:59:59`).getTime(),
+      min: new Date(`${date}T00:00:00Z`).getTime(),
+      max: new Date(`${date}T23:59:59Z`).getTime(),
       labels: {
         datetimeFormatter: { hour: 'HH:mm' },
         style: { colors: '#71717a' },
@@ -95,10 +96,10 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
           <div className="p-6">
             <div className="grid grid-cols-3 gap-4 mb-6">
               <StatCard label="Total Time" value={formatDuration(totalMinutes)} />
-              <StatCard label="First Seen" value={firstSeen?.slice(0, 5) || '-'} />
+              <StatCard label="First Seen" value={firstSeen ? utcTimeToLocal(firstSeen, date) : '-'} />
               <StatCard
                 label="Last Seen"
-                value={lastSeen?.slice(0, 5) || '-'}
+                value={lastSeen ? utcTimeToLocal(lastSeen, date) : '-'}
                 suffix={stillConnected && <span className="text-xs text-emerald-400 ml-2">● Online</span>}
               />
             </div>
@@ -118,7 +119,7 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
                 <h3 className="text-sm font-medium text-zinc-500 mb-3">Sessions ({sessions.length})</h3>
                 <div className="space-y-2 max-h-48 overflow-y-auto">
                   {sessions.map((session, i) => (
-                    <SessionRow key={i} session={session} color={color} />
+                    <SessionRow key={i} session={session} color={color} date={date} />
                   ))}
                 </div>
               </>
@@ -145,16 +146,17 @@ const StatCard = ({ label, value, suffix }: { label: string; value: string; suff
 type SessionRowProps = {
   session: { start: string; end: string | null; durationMinutes: number };
   color: string;
+  date: string;
 };
 
-const SessionRow = ({ session, color }: SessionRowProps) => (
+const SessionRow = ({ session, color, date }: SessionRowProps) => (
   <div className="flex items-center justify-between bg-zinc-950/50 rounded-lg px-4 py-3 border border-zinc-800">
     <div className="flex items-center gap-3">
       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
-      <span className="text-white font-medium">{session.start.slice(0, 5)}</span>
+      <span className="text-white font-medium">{utcTimeToLocal(session.start, date)}</span>
       <span className="text-zinc-600">→</span>
       <span className="text-white font-medium">
-        {session.end ? session.end.slice(0, 5) : <span className="text-emerald-400">Connected</span>}
+        {session.end ? utcTimeToLocal(session.end, date) : <span className="text-emerald-400">Connected</span>}
       </span>
     </div>
     <span className="text-zinc-500">{formatDuration(session.durationMinutes)}</span>
