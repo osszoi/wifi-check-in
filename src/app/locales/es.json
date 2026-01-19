@@ -1,0 +1,64 @@
+{
+  "common": {
+    "cancel": "Cancelar",
+    "online": "En línea",
+    "connected": "Conectado"
+  },
+  "calendar": {
+    "title": "Check-ins WiFi",
+    "reports": "Reportes"
+  },
+  "session": {
+    "totalTime": "Tiempo Total",
+    "firstSeen": "Primera Vez",
+    "lastSeen": "Última Vez",
+    "timeline": "Línea de Tiempo",
+    "sessions": "Sesiones",
+    "noData": "No hay datos de sesión disponibles",
+    "merge": {
+      "title": "Unir Sesiones",
+      "description": "Esto llenará el espacio entre estas dos sesiones, tratándolas como una sesión continua. Esta acción modificará los datos de origen.",
+      "button": "Unir",
+      "merging": "Uniendo..."
+    }
+  },
+  "reports": {
+    "title": "Reportes Mensuales",
+    "noData": "No hay datos disponibles",
+    "stats": {
+      "totalHours": "Horas Totales",
+      "daysCheckedIn": "Días Registrados",
+      "avgTimePerDay": "Tiempo Prom/Día",
+      "avgDaysPerWeek": "Días Prom/Semana",
+      "avgTimePerWeek": "Tiempo Prom/Semana",
+      "avgCheckIn": "Entrada Prom",
+      "avgCheckOut": "Salida Prom",
+      "activeRate": "Tasa de Actividad"
+    },
+    "dailyActivity": "Actividad Diaria",
+    "timeOnline": "Tiempo en Línea"
+  },
+  "months": {
+    "january": "Enero",
+    "february": "Febrero",
+    "march": "Marzo",
+    "april": "Abril",
+    "may": "Mayo",
+    "june": "Junio",
+    "july": "Julio",
+    "august": "Agosto",
+    "september": "Septiembre",
+    "october": "Octubre",
+    "november": "Noviembre",
+    "december": "Diciembre"
+  },
+  "weekdays": {
+    "sun": "Dom",
+    "mon": "Lun",
+    "tue": "Mar",
+    "wed": "Mié",
+    "thu": "Jue",
+    "fri": "Vie",
+    "sat": "Sáb"
+  }
+}

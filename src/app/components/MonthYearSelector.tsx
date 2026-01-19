@@ -2,7 +2,6 @@
 
 import { Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
-import { MONTHS } from '../lib/constants';
 
 type Props = {
   month: number;
@@ -10,21 +9,22 @@ type Props = {
   onMonthChange: (month: number) => void;
   onYearChange: (year: number) => void;
   years: number[];
+  months: string[];
 };
 
-export const MonthYearSelector = ({ month, year, onMonthChange, onYearChange, years }: Props) => {
+export const MonthYearSelector = ({ month, year, onMonthChange, onYearChange, years, months }: Props) => {
   return (
     <div className="flex gap-4">
       <Listbox value={month} onChange={onMonthChange}>
         <div className="relative">
           <ListboxButton className="relative w-40 cursor-pointer rounded-lg bg-zinc-900 py-2.5 pl-4 pr-10 text-left text-white shadow-md border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-white/20">
-            <span className="block truncate">{MONTHS[month]}</span>
+            <span className="block truncate">{months[month]}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon className="h-5 w-5 text-zinc-500" />
             </span>
           </ListboxButton>
           <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-zinc-900 py-1 shadow-lg border border-zinc-800 focus:outline-none">
-            {MONTHS.map((m, i) => (
+            {months.map((m, i) => (
               <ListboxOption
                 key={m}
                 value={i}

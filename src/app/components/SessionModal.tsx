@@ -7,6 +7,7 @@ import { XMarkIcon, LinkIcon } from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
 import { DayData, formatDuration } from '../lib/sessions';
 import { utcTimeToLocal } from '../lib/utils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -25,6 +26,7 @@ type Props = {
 
 export const SessionModal = ({ data, onClose, formatDate }: Props) => {
   const router = useRouter();
+  const { t } = useLanguage();
   const [confirmMerge, setConfirmMerge] = useState<number | null>(null);
   const [merging, setMerging] = useState(false);
 
@@ -124,18 +126,18 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
 
           <div className="p-6">
             <div className="grid grid-cols-3 gap-4 mb-6">
-              <StatCard label="Total Time" value={formatDuration(totalMinutes)} />
-              <StatCard label="First Seen" value={firstSeen ? utcTimeToLocal(firstSeen, date) : '-'} />
+              <StatCard label={t('session.totalTime')} value={formatDuration(totalMinutes)} />
+              <StatCard label={t('session.firstSeen')} value={firstSeen ? utcTimeToLocal(firstSeen, date) : '-'} />
               <StatCard
-                label="Last Seen"
+                label={t('session.lastSeen')}
                 value={lastSeen ? utcTimeToLocal(lastSeen, date) : '-'}
-                suffix={stillConnected && <span className="text-xs text-emerald-400 ml-2">● Online</span>}
+                suffix={stillConnected && <span className="text-xs text-emerald-400 ml-2">● {t('common.online')}</span>}
               />
             </div>
 
             {sessions.length > 0 ? (
               <>
-                <h3 className="text-sm font-medium text-zinc-500 mb-3">Timeline</h3>
+                <h3 className="text-sm font-medium text-zinc-500 mb-3">{t('session.timeline')}</h3>
                 <div className="bg-zinc-950/50 rounded-xl border border-zinc-800 p-4 mb-6">
                   <Chart
                     options={chartOptions}
@@ -145,12 +147,12 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
                   />
                 </div>
 
-                <h3 className="text-sm font-medium text-zinc-500 mb-3">Sessions ({sessions.length})</h3>
+                <h3 className="text-sm font-medium text-zinc-500 mb-3">{t('session.sessions')} ({sessions.length})</h3>
                 <div className="max-h-48 overflow-y-auto">
                   <div className="relative space-y-2">
                     {sessions.map((session, i) => (
                       <div key={i} className="relative">
-                        <SessionRow session={session} color={color} date={date} />
+                        <SessionRow session={session} color={color} date={date} t={t} />
                         {i < sessions.length - 1 && session.end && sessions[i + 1].start && (
                           <div className="absolute left-1/2 -translate-x-1/2 -bottom-3 z-10">
                             <button
@@ -168,7 +170,7 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
                 </div>
               </>
             ) : (
-              <div className="text-center py-8 text-zinc-600">No session data available</div>
+              <div className="text-center py-8 text-zinc-600">{t('session.noData')}</div>
             )}
           </div>
         </DialogPanel>
@@ -178,9 +180,9 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <DialogPanel className="max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl p-6">
-            <DialogTitle className="text-lg font-semibold text-white mb-2">Merge Sessions</DialogTitle>
+            <DialogTitle className="text-lg font-semibold text-white mb-2">{t('session.merge.title')}</DialogTitle>
             <p className="text-sm text-zinc-400 mb-6">
-              This will fill the gap between these two sessions, treating them as one continuous session. This action will modify the source data.
+              {t('session.merge.description')}
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -188,14 +190,14 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
                 disabled={merging}
                 className="px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors disabled:opacity-50"
               >
-                Cancel
+                {t('common.cancel')}
               </button>
               <button
                 onClick={() => confirmMerge !== null && handleMerge(confirmMerge)}
                 disabled={merging}
                 className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-50"
               >
-                {merging ? 'Merging...' : 'Merge'}
+                {merging ? t('session.merge.merging') : t('session.merge.button')}
               </button>
             </div>
           </DialogPanel>
@@ -219,16 +221,17 @@ type SessionRowProps = {
   session: { start: string; end: string | null; durationMinutes: number };
   color: string;
   date: string;
+  t: (key: string) => string;
 };
 
-const SessionRow = ({ session, color, date }: SessionRowProps) => (
+const SessionRow = ({ session, color, date, t }: SessionRowProps) => (
   <div className="flex items-center justify-between bg-zinc-950/50 rounded-lg px-4 py-3 border border-zinc-800">
     <div className="flex items-center gap-3">
       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
       <span className="text-white font-medium">{utcTimeToLocal(session.start, date)}</span>
       <span className="text-zinc-600">→</span>
       <span className="text-white font-medium">
-        {session.end ? utcTimeToLocal(session.end, date) : <span className="text-emerald-400">Connected</span>}
+        {session.end ? utcTimeToLocal(session.end, date) : <span className="text-emerald-400">{t('common.connected')}</span>}
       </span>
     </div>
     <span className="text-zinc-500">{formatDuration(session.durationMinutes)}</span>

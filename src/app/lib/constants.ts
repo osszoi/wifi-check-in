@@ -9,14 +9,32 @@ export const COLORS = [
   { bg: 'bg-lime-500', hex: '#84cc16' },
 ];
 
-export const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
-];
-
-export const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
 export const getPersonColor = (person: string, allPeople: string[]) => {
   const index = allPeople.indexOf(person);
   return COLORS[index % COLORS.length];
 };
+
+export const getMonths = (t: (key: string) => string): string[] => [
+  t('months.january'),
+  t('months.february'),
+  t('months.march'),
+  t('months.april'),
+  t('months.may'),
+  t('months.june'),
+  t('months.july'),
+  t('months.august'),
+  t('months.september'),
+  t('months.october'),
+  t('months.november'),
+  t('months.december'),
+];
+
+export const getWeekdays = (t: (key: string) => string): string[] => [
+  t('weekdays.sun'),
+  t('weekdays.mon'),
+  t('weekdays.tue'),
+  t('weekdays.wed'),
+  t('weekdays.thu'),
+  t('weekdays.fri'),
+  t('weekdays.sat'),
+];

@@ -5,9 +5,10 @@ import { Dialog, DialogPanel, DialogTitle, Listbox, ListboxButton, ListboxOption
 import { XMarkIcon, CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
 import type { CheckInsData } from '../page';
-import { MONTHS } from '../lib/constants';
+import { getMonths } from '../lib/constants';
 import { calculateMonthlyReport, formatHours, PersonMonthlyReport } from '../lib/reports';
 import { utcTimeToLocal } from '../lib/utils';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 
@@ -18,11 +19,13 @@ type Props = {
 };
 
 export const ReportsModal = ({ isOpen, onClose, checkIns }: Props) => {
+  const { t } = useLanguage();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
 
   const years = Array.from({ length: 10 }, (_, i) => today.getFullYear() - 5 + i);
+  const MONTHS = getMonths(t);
   const reports = useMemo(() => calculateMonthlyReport(checkIns, year, month), [checkIns, year, month]);
   const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
 
@@ -35,7 +38,7 @@ export const ReportsModal = ({ isOpen, onClose, checkIns }: Props) => {
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <DialogPanel className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl flex flex-col">
           <div className="flex items-center justify-between p-6 border-b border-zinc-800 shrink-0">
-            <DialogTitle className="text-xl font-semibold text-white">Monthly Reports</DialogTitle>
+            <DialogTitle className="text-xl font-semibold text-white">{t('reports.title')}</DialogTitle>
             <button
               onClick={onClose}
               className="rounded-lg p-2 text-zinc-500 hover:bg-zinc-800 hover:text-white transition-colors"
@@ -46,7 +49,7 @@ export const ReportsModal = ({ isOpen, onClose, checkIns }: Props) => {
 
           <div className="p-6 overflow-y-auto flex-1">
             <div className="flex gap-4 mb-6">
-              <MonthSelector value={month} onChange={setMonth} />
+              <MonthSelector value={month} onChange={setMonth} months={MONTHS} />
               <YearSelector value={year} onChange={setYear} years={years} />
               {reports.length > 0 && (
                 <PersonSelector
@@ -58,9 +61,9 @@ export const ReportsModal = ({ isOpen, onClose, checkIns }: Props) => {
             </div>
 
             {reports.length > 0 && selectedReport ? (
-              <PersonReport report={selectedReport} year={year} month={month} />
+              <PersonReport report={selectedReport} year={year} month={month} t={t} />
             ) : (
-              <div className="text-center py-12 text-zinc-600">No data available</div>
+              <div className="text-center py-12 text-zinc-600">{t('reports.noData')}</div>
             )}
           </div>
         </DialogPanel>
@@ -69,7 +72,7 @@ export const ReportsModal = ({ isOpen, onClose, checkIns }: Props) => {
   );
 };
 
-const PersonReport = ({ report, year, month }: { report: PersonMonthlyReport; year: number; month: number }) => {
+const PersonReport = ({ report, year, month, t }: { report: PersonMonthlyReport; year: number; month: number; t: (key: string) => string }) => {
   const chartOptions: ApexCharts.ApexOptions = {
     chart: {
       type: 'bar',
@@ -108,27 +111,27 @@ const PersonReport = ({ report, year, month }: { report: PersonMonthlyReport; ye
   };
 
   const chartSeries = [{
-    name: 'Time Online',
+    name: t('reports.timeOnline'),
     data: report.dailyData.map(d => d.minutes),
   }];
 
   return (
     <div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <StatCard label="Total Hours" value={formatHours(report.totalMinutes)} />
-        <StatCard label="Days Checked In" value={String(report.totalDays)} />
-        <StatCard label="Avg Time/Day" value={formatHours(report.avgMinutesPerDay)} />
-        <StatCard label="Avg Days/Week" value={String(report.avgDaysPerWeek)} />
-        <StatCard label="Avg Time/Week" value={formatHours(report.avgMinutesPerWeek)} />
-        <StatCard label="Avg Check-In" value={report.avgFirstCheckIn ? utcTimeToLocal(report.avgFirstCheckIn, '2000-01-01') : '-'} />
-        <StatCard label="Avg Check-Out" value={report.avgLastCheckOut ? utcTimeToLocal(report.avgLastCheckOut, '2000-01-01') : '-'} />
+        <StatCard label={t('reports.stats.totalHours')} value={formatHours(report.totalMinutes)} />
+        <StatCard label={t('reports.stats.daysCheckedIn')} value={String(report.totalDays)} />
+        <StatCard label={t('reports.stats.avgTimePerDay')} value={formatHours(report.avgMinutesPerDay)} />
+        <StatCard label={t('reports.stats.avgDaysPerWeek')} value={String(report.avgDaysPerWeek)} />
+        <StatCard label={t('reports.stats.avgTimePerWeek')} value={formatHours(report.avgMinutesPerWeek)} />
+        <StatCard label={t('reports.stats.avgCheckIn')} value={report.avgFirstCheckIn ? utcTimeToLocal(report.avgFirstCheckIn, '2000-01-01') : '-'} />
+        <StatCard label={t('reports.stats.avgCheckOut')} value={report.avgLastCheckOut ? utcTimeToLocal(report.avgLastCheckOut, '2000-01-01') : '-'} />
         <StatCard
-          label="Active Rate"
+          label={t('reports.stats.activeRate')}
           value={`${Math.round((report.totalDays / new Date(year, month + 1, 0).getDate()) * 100)}%`}
         />
       </div>
 
-      <h3 className="text-sm font-medium text-zinc-500 mb-3">Daily Activity</h3>
+      <h3 className="text-sm font-medium text-zinc-500 mb-3">{t('reports.dailyActivity')}</h3>
       <div className="bg-zinc-950/50 rounded-xl border border-zinc-800 p-4">
         <Chart options={chartOptions} series={chartSeries} type="bar" height={250} />
       </div>
@@ -143,17 +146,17 @@ const StatCard = ({ label, value }: { label: string; value: string }) => (
   </div>
 );
 
-const MonthSelector = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
+const MonthSelector = ({ value, onChange, months }: { value: number; onChange: (v: number) => void; months: string[] }) => (
   <Listbox value={value} onChange={onChange}>
     <div className="relative">
       <ListboxButton className="relative w-36 cursor-pointer rounded-lg bg-zinc-800 py-2 pl-3 pr-10 text-left text-white text-sm border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-white/20">
-        <span className="block truncate">{MONTHS[value]}</span>
+        <span className="block truncate">{months[value]}</span>
         <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
           <ChevronUpDownIcon className="h-4 w-4 text-zinc-500" />
         </span>
       </ListboxButton>
       <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-zinc-800 py-1 shadow-lg border border-zinc-700 focus:outline-none">
-        {MONTHS.map((m, i) => (
+        {months.map((m, i) => (
           <ListboxOption
             key={m}
             value={i}

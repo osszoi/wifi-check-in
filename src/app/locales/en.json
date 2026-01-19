@@ -1,0 +1,64 @@
+{
+  "common": {
+    "cancel": "Cancel",
+    "online": "Online",
+    "connected": "Connected"
+  },
+  "calendar": {
+    "title": "WiFi Check-ins",
+    "reports": "Reports"
+  },
+  "session": {
+    "totalTime": "Total Time",
+    "firstSeen": "First Seen",
+    "lastSeen": "Last Seen",
+    "timeline": "Timeline",
+    "sessions": "Sessions",
+    "noData": "No session data available",
+    "merge": {
+      "title": "Merge Sessions",
+      "description": "This will fill the gap between these two sessions, treating them as one continuous session. This action will modify the source data.",
+      "button": "Merge",
+      "merging": "Merging..."
+    }
+  },
+  "reports": {
+    "title": "Monthly Reports",
+    "noData": "No data available",
+    "stats": {
+      "totalHours": "Total Hours",
+      "daysCheckedIn": "Days Checked In",
+      "avgTimePerDay": "Avg Time/Day",
+      "avgDaysPerWeek": "Avg Days/Week",
+      "avgTimePerWeek": "Avg Time/Week",
+      "avgCheckIn": "Avg Check-In",
+      "avgCheckOut": "Avg Check-Out",
+      "activeRate": "Active Rate"
+    },
+    "dailyActivity": "Daily Activity",
+    "timeOnline": "Time Online"
+  },
+  "months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  },
+  "weekdays": {
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat"
+  }
+}
