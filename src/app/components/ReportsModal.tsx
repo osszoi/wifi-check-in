@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Dialog, DialogPanel, DialogTitle, Listbox, ListboxButton, ListboxOption, ListboxOptions, Tab, TabGroup, TabList, TabPanel, TabPanels } from '@headlessui/react';
+import { Dialog, DialogPanel, DialogTitle, Listbox, ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/react';
 import { XMarkIcon, CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
 import type { CheckInsData } from '../page';
@@ -24,6 +24,9 @@ export const ReportsModal = ({ isOpen, onClose, checkIns }: Props) => {
 
   const years = Array.from({ length: 10 }, (_, i) => today.getFullYear() - 5 + i);
   const reports = useMemo(() => calculateMonthlyReport(checkIns, year, month), [checkIns, year, month]);
+  const [selectedPerson, setSelectedPerson] = useState<string | null>(null);
+
+  const selectedReport = selectedPerson ? reports.find(r => r.person === selectedPerson) : reports[0];
 
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
@@ -45,35 +48,17 @@ export const ReportsModal = ({ isOpen, onClose, checkIns }: Props) => {
             <div className="flex gap-4 mb-6">
               <MonthSelector value={month} onChange={setMonth} />
               <YearSelector value={year} onChange={setYear} years={years} />
+              {reports.length > 0 && (
+                <PersonSelector
+                  value={selectedReport?.person || reports[0].person}
+                  onChange={setSelectedPerson}
+                  reports={reports}
+                />
+              )}
             </div>
 
-            {reports.length > 0 ? (
-              <TabGroup>
-                <TabList className="flex gap-2 mb-6 flex-wrap">
-                  {reports.map(report => (
-                    <Tab
-                      key={report.person}
-                      className={({ selected }) =>
-                        `px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          selected
-                            ? 'bg-white text-zinc-900'
-                            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
-                        }`
-                      }
-                    >
-                      {report.person}
-                    </Tab>
-                  ))}
-                </TabList>
-
-                <TabPanels>
-                  {reports.map(report => (
-                    <TabPanel key={report.person}>
-                      <PersonReport report={report} year={year} month={month} />
-                    </TabPanel>
-                  ))}
-                </TabPanels>
-              </TabGroup>
+            {reports.length > 0 && selectedReport ? (
+              <PersonReport report={selectedReport} year={year} month={month} />
             ) : (
               <div className="text-center py-12 text-zinc-600">No data available</div>
             )}
@@ -214,6 +199,41 @@ const YearSelector = ({ value, onChange, years }: { value: number; onChange: (v:
             {({ selected }) => (
               <>
                 <span className={selected ? 'font-medium text-white' : 'font-normal'}>{y}</span>
+                {selected && (
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-white">
+                    <CheckIcon className="h-4 w-4" />
+                  </span>
+                )}
+              </>
+            )}
+          </ListboxOption>
+        ))}
+      </ListboxOptions>
+    </div>
+  </Listbox>
+);
+
+const PersonSelector = ({ value, onChange, reports }: { value: string; onChange: (v: string) => void; reports: PersonMonthlyReport[] }) => (
+  <Listbox value={value} onChange={onChange}>
+    <div className="relative">
+      <ListboxButton className="relative w-36 cursor-pointer rounded-lg bg-zinc-800 py-2 pl-3 pr-10 text-left text-white text-sm border border-zinc-700 focus:outline-none focus:ring-2 focus:ring-white/20">
+        <span className="block truncate">{value}</span>
+        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+          <ChevronUpDownIcon className="h-4 w-4 text-zinc-500" />
+        </span>
+      </ListboxButton>
+      <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-lg bg-zinc-800 py-1 shadow-lg border border-zinc-700 focus:outline-none">
+        {reports.map(report => (
+          <ListboxOption
+            key={report.person}
+            value={report.person}
+            className={({ active }) =>
+              `relative cursor-pointer select-none py-2 pl-8 pr-4 text-sm ${active ? 'bg-zinc-700 text-white' : 'text-zinc-400'}`
+            }
+          >
+            {({ selected }) => (
+              <>
+                <span className={selected ? 'font-medium text-white' : 'font-normal'}>{report.person}</span>
                 {selected && (
                   <span className="absolute inset-y-0 left-0 flex items-center pl-2 text-white">
                     <CheckIcon className="h-4 w-4" />
