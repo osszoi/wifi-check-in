@@ -1,12 +1,12 @@
 export const COLORS = [
-  { bg: 'bg-blue-500', hex: '#3b82f6' },
-  { bg: 'bg-emerald-500', hex: '#10b981' },
-  { bg: 'bg-violet-500', hex: '#8b5cf6' },
-  { bg: 'bg-amber-500', hex: '#f59e0b' },
-  { bg: 'bg-rose-500', hex: '#f43f5e' },
-  { bg: 'bg-cyan-500', hex: '#06b6d4' },
-  { bg: 'bg-fuchsia-500', hex: '#d946ef' },
-  { bg: 'bg-lime-500', hex: '#84cc16' },
+  { bg: 'bg-blue-700', hex: '#1d4ed8' },
+  { bg: 'bg-emerald-700', hex: '#047857' },
+  { bg: 'bg-violet-700', hex: '#6d28d9' },
+  { bg: 'bg-amber-700', hex: '#b45309' },
+  { bg: 'bg-rose-700', hex: '#be123c' },
+  { bg: 'bg-cyan-700', hex: '#0e7490' },
+  { bg: 'bg-fuchsia-700', hex: '#a21caf' },
+  { bg: 'bg-lime-700', hex: '#4d7c0f' },
 ];
 
 export const getPersonColor = (person: string, allPeople: string[]) => {
