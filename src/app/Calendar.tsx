@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { ChartBarIcon } from '@heroicons/react/20/solid';
 import type { CheckInsData } from './page';
 import { DayData, formatDuration } from './lib/sessions';
@@ -17,6 +18,7 @@ type CalendarProps = {
 };
 
 export const Calendar = ({ checkIns }: CalendarProps) => {
+  const router = useRouter();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -24,6 +26,37 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
   const [showReports, setShowReports] = useState(false);
 
   const people = Object.keys(checkIns).sort();
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh();
+    }, 30000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        router.refresh();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [router]);
+
+  useEffect(() => {
+    setModalData(prev => {
+      if (prev) {
+        const updatedDayData = checkIns[prev.person]?.[prev.date];
+        if (updatedDayData) {
+          return { ...prev, dayData: updatedDayData };
+        }
+      }
+      return prev;
+    });
+  }, [checkIns]);
   const daysInMonth = getDaysInMonth(year, month);
   const firstDay = getFirstDayOfMonth(year, month);
   const years = Array.from({ length: 10 }, (_, i) => today.getFullYear() - 5 + i);

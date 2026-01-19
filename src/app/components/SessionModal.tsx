@@ -1,7 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/react';
-import { XMarkIcon } from '@heroicons/react/20/solid';
+import { XMarkIcon, LinkIcon } from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
 import { DayData, formatDuration } from '../lib/sessions';
 import { utcTimeToLocal } from '../lib/utils';
@@ -22,10 +24,37 @@ type Props = {
 };
 
 export const SessionModal = ({ data, onClose, formatDate }: Props) => {
+  const router = useRouter();
+  const [confirmMerge, setConfirmMerge] = useState<number | null>(null);
+  const [merging, setMerging] = useState(false);
+
   if (!data) return null;
 
   const { person, date, dayData, color } = data;
   const { sessions, totalMinutes, firstSeen, lastSeen, stillConnected } = dayData;
+
+  const handleMerge = async (sessionIndex: number) => {
+    setMerging(true);
+    try {
+      const response = await fetch('/api/merge-sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ person, date, sessionIndex }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to merge sessions');
+      }
+
+      router.refresh();
+      setConfirmMerge(null);
+    } catch (error) {
+      console.error('Error merging sessions:', error);
+      alert('Failed to merge sessions');
+    } finally {
+      setMerging(false);
+    }
+  };
 
   const timelineData = sessions.map((session, i) => ({
     x: `Session ${i + 1}`,
@@ -117,10 +146,25 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
                 </div>
 
                 <h3 className="text-sm font-medium text-zinc-500 mb-3">Sessions ({sessions.length})</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {sessions.map((session, i) => (
-                    <SessionRow key={i} session={session} color={color} date={date} />
-                  ))}
+                <div className="max-h-48 overflow-y-auto">
+                  <div className="relative space-y-2">
+                    {sessions.map((session, i) => (
+                      <div key={i} className="relative">
+                        <SessionRow session={session} color={color} date={date} />
+                        {i < sessions.length - 1 && session.end && sessions[i + 1].start && (
+                          <div className="absolute left-1/2 -translate-x-1/2 -bottom-3 z-10">
+                            <button
+                              onClick={() => setConfirmMerge(i)}
+                              className="p-1.5 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-400 hover:bg-zinc-700 hover:text-white hover:border-zinc-600 transition-all shadow-lg"
+                              title="Merge sessions"
+                            >
+                              <LinkIcon className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </>
             ) : (
@@ -129,6 +173,34 @@ export const SessionModal = ({ data, onClose, formatDate }: Props) => {
           </div>
         </DialogPanel>
       </div>
+
+      <Dialog open={confirmMerge !== null} onClose={() => setConfirmMerge(null)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel className="max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl p-6">
+            <DialogTitle className="text-lg font-semibold text-white mb-2">Merge Sessions</DialogTitle>
+            <p className="text-sm text-zinc-400 mb-6">
+              This will fill the gap between these two sessions, treating them as one continuous session. This action will modify the source data.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmMerge(null)}
+                disabled={merging}
+                className="px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => confirmMerge !== null && handleMerge(confirmMerge)}
+                disabled={merging}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-50"
+              >
+                {merging ? 'Merging...' : 'Merge'}
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
     </Dialog>
   );
 };
