@@ -116,7 +116,7 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
         {/*   <LanguageSwitcher /> */}
         {/* </div> */}
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <MonthYearSelector
             month={month}
             year={year}
@@ -126,7 +126,7 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
             months={MONTHS}
           />
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 self-end sm:self-auto">
             <button
               onClick={() => setShowReports(true)}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-zinc-900 text-white border border-zinc-800 hover:bg-zinc-800 transition-colors">
