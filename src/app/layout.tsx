@@ -5,6 +5,9 @@ import { LanguageProvider } from './contexts/LanguageContext';
 export const metadata: Metadata = {
   title: 'WiFi Check-in',
   description: 'Track check-ins via WiFi presence',
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 const RootLayout = ({ children }: { children: React.ReactNode }) => {

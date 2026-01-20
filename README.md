@@ -1,4 +1,9 @@
-# WiFi Check-In
+<table>
+  <tr>
+    <td><img src="public/logo.png" alt="Logo" width="100"/></td>
+    <td><h1>WiFi Check-In</h1></td>
+  </tr>
+</table>
 
 A presence tracking system that monitors device connectivity on your local network and provides detailed analytics on check-in patterns, session durations, and activity reports.
 
