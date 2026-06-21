@@ -132,15 +132,15 @@ npm start
 
 ## Configuration
 
-Edit the `scan.config.json` file to add or remove tracked devices. The format is simple:
+The easiest way to manage tracked devices is through the web dashboard: click the **Settings** (gear) button in the header to add, edit, or remove people (name + IP). Changes are written to `scan.config.json` and picked up automatically by the scanner on its next cycle — no restart needed.
+
+You can still edit `scan.config.json` by hand if you prefer. The format is simple:
 
 ```json
 {
   "PersonName": "IP_Address"
 }
 ```
-
-After updating the config, restart the scanner service for changes to take effect.
 
 **Note:** The `scan.config.json` file is git-ignored to keep your network configuration private. Make sure to copy `scan.config.json.example` to `scan.config.json` before first use.
 

@@ -6,7 +6,28 @@
   },
   "calendar": {
     "title": "WiFi Check-ins",
-    "reports": "Reports"
+    "reports": "Reports",
+    "settings": "Settings",
+    "entries": "entries",
+    "joinAll": "Join all sessions"
+  },
+  "settings": {
+    "title": "Settings",
+    "people": "People",
+    "name": "Name",
+    "ip": "IP Address",
+    "namePlaceholder": "e.g. Carolina",
+    "ipPlaceholder": "e.g. 192.168.1.100",
+    "add": "Add person",
+    "save": "Save",
+    "saving": "Saving...",
+    "delete": "Delete",
+    "empty": "No people configured yet. Add one to start tracking.",
+    "deleteConfirm": {
+      "title": "Delete person",
+      "description": "This stops tracking this person. Their existing check-in history is kept.",
+      "button": "Delete"
+    }
   },
   "session": {
     "totalTime": "Total Time",
@@ -20,6 +41,11 @@
       "description": "This will fill the gap between these two sessions, treating them as one continuous session. This action will modify the source data.",
       "button": "Merge",
       "merging": "Merging..."
+    },
+    "mergeAll": {
+      "title": "Join All Sessions",
+      "description": "This will fill every gap for this day, treating all sessions as one continuous session. This action will modify the source data.",
+      "button": "Join all"
     }
   },
   "reports": {

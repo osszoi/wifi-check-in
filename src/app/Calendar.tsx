@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ChartBarIcon } from "@heroicons/react/20/solid";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { ChartBarIcon, Cog6ToothIcon, LinkIcon } from "@heroicons/react/20/solid";
 import type { CheckInsData } from "./page";
 import { DayData, formatDuration } from "./lib/sessions";
 import { getPersonColor, getMonths, getWeekdays } from "./lib/constants";
 import { MonthYearSelector } from "./components/MonthYearSelector";
 import { SessionModal, ModalData } from "./components/SessionModal";
 import { ReportsModal } from "./components/ReportsModal";
+import { SettingsModal } from "./components/SettingsModal";
 import { useLanguage } from "./contexts/LanguageContext";
 import { LanguageSwitcher } from "./components/LanguageSwitcher";
 
@@ -29,6 +31,9 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
   const [month, setMonth] = useState(today.getMonth());
   const [modalData, setModalData] = useState<ModalData>(null);
   const [showReports, setShowReports] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [joinConfirm, setJoinConfirm] = useState<{ person: string; date: string } | null>(null);
+  const [joining, setJoining] = useState(false);
 
   const people = Object.keys(checkIns).sort();
   const MONTHS = getMonths(t);
@@ -101,6 +106,26 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
     }
   };
 
+  const handleJoinAll = async () => {
+    if (!joinConfirm) return;
+    setJoining(true);
+    try {
+      const response = await fetch("/api/merge-sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...joinConfirm, mergeAll: true }),
+      });
+      if (!response.ok) throw new Error("Failed to join sessions");
+      router.refresh();
+      setJoinConfirm(null);
+    } catch (error) {
+      console.error("Error joining sessions:", error);
+      alert("Failed to join sessions");
+    } finally {
+      setJoining(false);
+    }
+  };
+
   const formatDateDisplay = (dateStr: string) => {
     const [y, m, d] = dateStr.split("-").map(Number);
     return `${MONTHS[m - 1]} ${d}, ${y}`;
@@ -132,6 +157,13 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-zinc-900 text-white border border-zinc-800 hover:bg-zinc-800 transition-colors">
               <ChartBarIcon className="h-5 w-5" />
               <span>{t("calendar.reports")}</span>
+            </button>
+
+            <button
+              onClick={() => setShowSettings(true)}
+              title={t("calendar.settings")}
+              className="flex items-center justify-center p-2.5 rounded-lg bg-zinc-900 text-white border border-zinc-800 hover:bg-zinc-800 transition-colors">
+              <Cog6ToothIcon className="h-5 w-5" />
             </button>
 
             <LanguageSwitcher />
@@ -190,18 +222,41 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
                     {dayCheckIns.map((person) => {
                       const color = getPersonColor(person, people);
                       const dayData = getDayData(person, day);
+                      const sessionCount = dayData?.sessions.length ?? 0;
                       return (
-                        <button
+                        <div
                           key={person}
-                          onClick={() => handleBadgeClick(person, day)}
-                          className={`text-xs px-2 py-1 rounded ${color.bg} text-white truncate text-left hover:opacity-80 transition-opacity cursor-pointer`}>
-                          {person}
-                          {dayData && dayData.totalMinutes > 0 && (
-                            <span className="ml-1 opacity-75">
-                              · {formatDuration(dayData.totalMinutes)}
-                            </span>
+                          className={`rounded ${color.bg} overflow-hidden`}>
+                          <button
+                            onClick={() => handleBadgeClick(person, day)}
+                            className="w-full text-xs px-2 py-1 text-white truncate text-left hover:opacity-80 transition-opacity cursor-pointer">
+                            {person}
+                            {dayData && dayData.totalMinutes > 0 && (
+                              <span className="ml-1 opacity-75">
+                                · {formatDuration(dayData.totalMinutes)}
+                              </span>
+                            )}
+                          </button>
+                          {sessionCount > 1 && (
+                            <div className="flex items-center justify-between gap-1 px-2 pb-1 -mt-0.5">
+                              <span className="text-[10px] text-white/70">
+                                {sessionCount} {t("calendar.entries")}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setJoinConfirm({
+                                    person,
+                                    date: formatDateStr(day),
+                                  });
+                                }}
+                                title={t("calendar.joinAll")}
+                                className="shrink-0 text-white/70 hover:text-white transition-colors cursor-pointer">
+                                <LinkIcon className="h-3 w-3" />
+                              </button>
+                            </div>
                           )}
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -222,6 +277,44 @@ export const Calendar = ({ checkIns }: CalendarProps) => {
         onClose={() => setShowReports(false)}
         checkIns={checkIns}
       />
+      <SettingsModal
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+      />
+
+      <Dialog
+        open={joinConfirm !== null}
+        onClose={() => setJoinConfirm(null)}
+        className="relative z-50">
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm"
+          aria-hidden="true"
+        />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <DialogPanel className="max-w-md rounded-2xl bg-zinc-900 border border-zinc-800 shadow-xl p-6">
+            <DialogTitle className="text-lg font-semibold text-white mb-2">
+              {t("session.mergeAll.title")}
+            </DialogTitle>
+            <p className="text-sm text-zinc-400 mb-6">
+              {t("session.mergeAll.description")}
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setJoinConfirm(null)}
+                disabled={joining}
+                className="px-4 py-2 rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition-colors disabled:opacity-50">
+                {t("common.cancel")}
+              </button>
+              <button
+                onClick={handleJoinAll}
+                disabled={joining}
+                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition-colors disabled:opacity-50">
+                {joining ? t("session.merge.merging") : t("session.mergeAll.button")}
+              </button>
+            </div>
+          </DialogPanel>
+        </div>
+      </Dialog>
     </div>
   );
 };

@@ -6,7 +6,28 @@
   },
   "calendar": {
     "title": "Check-ins WiFi",
-    "reports": "Reportes"
+    "reports": "Reportes",
+    "settings": "Ajustes",
+    "entries": "entradas",
+    "joinAll": "Unir todas las sesiones"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "people": "Personas",
+    "name": "Nombre",
+    "ip": "Dirección IP",
+    "namePlaceholder": "ej. Carolina",
+    "ipPlaceholder": "ej. 192.168.1.100",
+    "add": "Agregar persona",
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "delete": "Eliminar",
+    "empty": "Aún no hay personas configuradas. Agrega una para empezar a registrar.",
+    "deleteConfirm": {
+      "title": "Eliminar persona",
+      "description": "Esto deja de registrar a esta persona. Su historial de check-ins existente se conserva.",
+      "button": "Eliminar"
+    }
   },
   "session": {
     "totalTime": "Tiempo Total",
@@ -20,6 +41,11 @@
       "description": "Esto llenará el espacio entre estas dos sesiones, tratándolas como una sesión continua. Esta acción modificará los datos de origen.",
       "button": "Unir",
       "merging": "Uniendo..."
+    },
+    "mergeAll": {
+      "title": "Unir Todas las Sesiones",
+      "description": "Esto llenará todos los espacios de este día, tratando todas las sesiones como una sola sesión continua. Esta acción modificará los datos de origen.",
+      "button": "Unir todas"
     }
   },
   "reports": {
